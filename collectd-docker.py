@@ -252,7 +252,9 @@ def find_containers():
         request = opener.open(req)
         result = json.loads(request.read())
         debug('done getting container ids')
-        return [c['Names'][0][1:] for c in result]
+        return [
+            '%s-%s' % (c['Id'][0:12], c['Labels']['com.amazonaws.ecs.container-name'])
+            for c in result]
     except urllib2.URLError as e:
         log('unable to get container ids')
         if re.match('^.*\[Errno 13\].*$', str(e)):
@@ -301,7 +303,7 @@ while True:
         for id in find_containers():
             try:
                 stats = gather_stats(id)
-                for i in flatten(stats, key=id[0:12], path='docker-librato').items():
+                for i in flatten(stats, key=id, path='docker-librato').items():
                     blacklisted = False
                     for r in blacklist:
                         if r.match(i[0].encode('ascii')):
