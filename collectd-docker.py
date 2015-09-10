@@ -31,15 +31,15 @@ from urlparse import urlsplit
 # we should first try to grab stats via Docker's API socket
 # (/var/run/docker.sock) and fallback to getting them from
 # the sysfs cgroup directories
-# 
+#
 # https://docs.docker.com/reference/api/docker_remote_api_v1.18/#get-container-stats-based-on-resource-usage
-# 
+#
 # There are a couple blkio stats that may be useful but they're
 # only exposed by sysfs, not the Docker API
-# 
+#
 # blkio.throttle.io_service_bytes
 # blkio.throttle.io_serviced
-# 
+#
 # https://www.kernel.org/doc/Documentation/cgroups/blkio-controller.txt
 
 try:
@@ -252,7 +252,7 @@ def find_containers():
         request = opener.open(req)
         result = json.loads(request.read())
         debug('done getting container ids')
-        return [c['Id'] for c in result]
+        return [c['Names'][0][1:] for c in result]
     except urllib2.URLError as e:
         log('unable to get container ids')
         if re.match('^.*\[Errno 13\].*$', str(e)):
